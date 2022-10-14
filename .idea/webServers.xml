@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="acd9481a-2c1a-4993-a0eb-4a8e5fa8c90b" name="fusion">
+        <fileTransfer accessType="SFTP" host="192.168.202.41" port="22" sshConfigId="a6417150-07c5-41a0-a73b-64df84d20cb9" sshConfig="azimov_a@192.168.202.41:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
