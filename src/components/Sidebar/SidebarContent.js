@@ -10,6 +10,7 @@ import history from "../../history";
 import tezpayLogo from "../../assets/img/tezpay.png";
 import globizLogo from "../../assets/img/globiz.svg";
 import uniredLogo from "../../assets/img/unired.svg"
+import milliypayLogo from "../../assets/img/milliypay.jpg"
 
 function Icon({ icon, ...props }) {
   const Icon = Icons[icon]
@@ -26,7 +27,6 @@ function SidebarContent() {
     let admin = "Bearer ef6d056e-e70f-4910-9b78-c6fff87f1039"
 
     const getToken = `Bearer ${localStorage.getItem("Bearer")}`
-    console.log(getToken)
 
     function openModal() {
         setIsModalOpen(true)
@@ -51,7 +51,8 @@ function SidebarContent() {
                 </div> :
                 getToken === milliypay ?
                     <div>
-                        <img className="align-middle m-10" src={uniredLogo} alt=""/>
+                        <h1 className="dark:text-white font-bold m-10">Milliy Pay</h1>
+                        {/*<img className="align-middle w-10 m-10" src={milliypayLogo} alt=""/>*/}
                     </div> :
                     getToken === unired ?
                         <div>

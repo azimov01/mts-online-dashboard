@@ -19,7 +19,7 @@ import {FaSearch} from "react-icons/fa";
 import {FaDownload} from "react-icons/all";
 import axios from "axios";
 
-function FilterComponent(){
+function FilterComponent() {
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
@@ -34,7 +34,6 @@ function FilterComponent(){
 
     const start_date = startDate.toLocaleDateString('ru-RU') + ' ' + startDate.toLocaleTimeString();
     const end_date = endDate.toLocaleDateString('ru-RU') + ' ' + endDate.toLocaleTimeString();
-
 
 
     function formatDate(date) {
@@ -61,9 +60,6 @@ function FilterComponent(){
         }
     };
 
-    console.log(start_date.toString());
-    console.log(end_date.toString());
-
 
     const getAnalytics = () => {
         const url = 'https://fusion.unired.uz/api/v1/main/'
@@ -85,18 +81,17 @@ function FilterComponent(){
             'Authorization': 'Bearer ef6d056e-e70f-4910-9b78-c6fff87f1039'
         }
         axios.post(url, data, {headers}).then(response => {
-            console.log(response);
-
-            // const customHeadings = response.data.map(item=>({
-            //     "COUNTS": item.result.  .ext_id,
-            //     "RATE": item.title
-            // }))
-
             setItem(response.data.result)
         })
     }
 
-    return(
+    function isDisabled() {
+        if (byPartners === true && byMonths === false && byDays === false && byRates === false) {
+
+        }
+    }
+
+    return (
         <div>
             <div className="space-y-10 bg-gray-100 dark:bg-gray-700 rounded p-10">
 
@@ -160,7 +155,9 @@ function FilterComponent(){
                     <div>
                         <InfoCard>
                             <Label className="space-x-5">
-                                <Input type="checkbox" onChange={(e) => setByPartners(e.target.checked)}/>
+                                <Input type="checkbox"
+                                       onChange={(e) => setByPartners(e.target.checked)}
+                                />
                                 <span>By Partners</span>
                             </Label>
                         </InfoCard>
@@ -168,7 +165,9 @@ function FilterComponent(){
                     <div>
                         <InfoCard>
                             <Label className="space-x-5">
-                                <Input type="checkbox" onChange={(e) => setByDays(e.target.checked)}/>
+                                <Input type="checkbox"
+                                       onChange={(e) => setByDays(e.target.checked)}
+                                />
                                 <span>By Days</span>
                             </Label>
                         </InfoCard>
@@ -176,7 +175,9 @@ function FilterComponent(){
                     <div>
                         <InfoCard>
                             <Label className="space-x-5">
-                                <Input type="checkbox" onChange={(e) => setByMonths(e.target.checked)}/>
+                                <Input type="checkbox"
+                                       onChange={(e) => setByMonths(e.target.checked)}
+                                />
                                 <span>By Months</span>
                             </Label>
                         </InfoCard>
@@ -184,7 +185,8 @@ function FilterComponent(){
                     <div>
                         <InfoCard>
                             <Label className="space-x-5">
-                                <Input type="checkbox" onChange={(e) => setByRates(e.target.checked)}/>
+                                <Input type="checkbox"
+                                       onChange={(e) => setByRates(e.target.checked)}/>
                                 <span>By Rates</span>
                             </Label>
                         </InfoCard>
@@ -213,13 +215,19 @@ function FilterComponent(){
                                         {/*    Summa RUB : {(data.sum_rub / 100).toLocaleString("ru")}*/}
                                         {/*</p>*/}
                                         <p>
-                                            Summa RUB : <b>{(new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(data.sum_rub))}</b>
+                                            Summa RUB : <b>{(new Intl.NumberFormat('ru-RU', {
+                                            style: 'currency',
+                                            currency: 'RUB'
+                                        }).format(data.sum_rub))}</b>
                                         </p>
                                         {/*<p>*/}
                                         {/*    Summa UZS : {(data.sum_uzs / 100).toLocaleString("ru")}*/}
                                         {/*</p>*/}
                                         <p>
-                                            Summa UZS : <b>{(new Intl.NumberFormat('uz-uz', { style: 'currency', currency: 'Uzs' }).format(data.sum_uzs))}</b>
+                                            Summa UZS : <b>{(new Intl.NumberFormat('uz-uz', {
+                                            style: 'currency',
+                                            currency: 'Uzs'
+                                        }).format(data.sum_uzs))}</b>
                                         </p>
                                         <p>
                                             Transactions : <b>{data.counts}</b>
@@ -253,11 +261,17 @@ function FilterComponent(){
                                             </TableCell>
                                             <TableCell>
                                                 <span
-                                                    className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(items.sum_rub))}</span>
+                                                    className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', {
+                                                    style: 'currency',
+                                                    currency: 'RUB'
+                                                }).format(items.sum_rub))}</span>
                                             </TableCell>
                                             <TableCell>
                                                 <span
-                                                    className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', { style: 'currency', currency: 'Uzs' }).format(items.sum_uzs))}</span>
+                                                    className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', {
+                                                    style: 'currency',
+                                                    currency: 'Uzs'
+                                                }).format(items.sum_uzs))}</span>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -284,13 +298,22 @@ function FilterComponent(){
                                                     <span className="text-sm font-semibold">{items.counts}</span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-sm font-semibold">{items.created_at__date}</span>
+                                                    <span
+                                                        className="text-sm font-semibold">{items.created_at__date}</span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(items.sum_rub))}</span>
+                                                    <span
+                                                        className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', {
+                                                        style: 'currency',
+                                                        currency: 'RUB'
+                                                    }).format(items.sum_rub))}</span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', { style: 'currency', currency: 'Uzs' }).format(items.sum_uzs))}</span>
+                                                    <span
+                                                        className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', {
+                                                        style: 'currency',
+                                                        currency: 'Uzs'
+                                                    }).format(items.sum_uzs))}</span>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -317,13 +340,22 @@ function FilterComponent(){
                                                         <span className="text-sm font-semibold">{items.counts}</span>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <span className="text-sm font-semibold">{items.created_at__date__month}</span>
+                                                        <span
+                                                            className="text-sm font-semibold">{items.created_at__date__month}</span>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <span className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(items.sum_rub))}</span>
+                                                        <span
+                                                            className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', {
+                                                            style: 'currency',
+                                                            currency: 'RUB'
+                                                        }).format(items.sum_rub))}</span>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <span className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', { style: 'currency', currency: 'Uzs' }).format(items.sum_uzs))}</span>
+                                                        <span
+                                                            className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', {
+                                                            style: 'currency',
+                                                            currency: 'Uzs'
+                                                        }).format(items.sum_uzs))}</span>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -335,7 +367,7 @@ function FilterComponent(){
                             <div className="mb-10">
                                 <Card>
                                     <CardBody className="flex justify-center">
-                                        <h1 className="font-medium">No Data</h1>
+                                        <h1 className="font-medium dark:text-gray-500">No Data</h1>
                                     </CardBody>
                                 </Card>
                             </div>

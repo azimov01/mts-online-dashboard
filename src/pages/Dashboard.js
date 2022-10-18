@@ -1,23 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import InfoCard from '../components/Cards/InfoCard'
-import ChartCard from '../components/Chart/ChartCard'
-import {Doughnut, Line} from 'react-chartjs-2'
-import ChartLegend from '../components/Chart/ChartLegend'
 import PageTitle from '../components/Typography/PageTitle'
-import {CartIcon, ChatIcon, MoneyIcon, PeopleIcon} from '../icons'
+import {MoneyIcon} from '../icons'
 import RoundIcon from '../components/RoundIcon'
-import response from '../utils/demo/tableData'
-import {addDays} from 'date-fns';
-import {DateRange} from 'react-date-range';
-
-import {
-    doughnutOptions,
-    lineOptions,
-    doughnutLegends,
-    lineLegends,
-} from '../utils/demo/chartsData'
 import axios from "axios";
-import Radio from "../components/Radio";
 import FilterComponent from "../components/FilterComponent";
 
 
@@ -27,14 +13,6 @@ function Dashboard() {
     const [usd, setUsd] = useState(0)
     const [ruble, setRuble] = useState(0)
 
-    console.log("Option D>>>>>>");
-    console.log(doughnutOptions)
-    console.log("LEGEND D>>>>>>");
-    console.log(doughnutLegends)
-    console.log("Option L>>>>>>");
-    console.log(lineOptions)
-    console.log("Line L>>>>>>");
-    console.log(lineLegends)
 
     const getUsdRate = () => {
         const url = 'https://fusion.unired.uz/api/v1/main/'
@@ -54,7 +32,6 @@ function Dashboard() {
 
         axios.post(url, usd, {headers})
             .then(res => {
-                    console.log(res);
                     if (res.status === 200) {
                         setIsLoaded(true)
                         setUsd(res.data.result.rate)
@@ -85,7 +62,6 @@ function Dashboard() {
 
         axios.post(url, ruble, {headers})
             .then((res) => {
-                    console.log(res);
                     if (res.status === 200) {
                         setIsLoaded(true)
                         setRuble(res.data.result.rate)
@@ -102,7 +78,6 @@ function Dashboard() {
     useEffect(() => {
         getUsdRate();
         getRubleRate();
-        // console.log(state);
     }, [])
 
 

@@ -15,6 +15,7 @@ import axios from "axios";
 import Header from "../components/Table/TableHeader";
 import {useHistory} from "react-router-dom";
 import {AiFillEye} from "react-icons/all";
+import {FaSearch} from "react-icons/fa";
 
 
 export default function Tables() {
@@ -56,11 +57,11 @@ export default function Tables() {
                 setDataTable(res.data)
                 setTotalRecords(res.data.count)
                 setObjects(res.data.results)
-                console.log(res);
+                // console.log(res);
             }).catch((err) => console.error(err));
     }
     const details = (ext_id) => {
-        console.log(ext_id, 'ext_id')
+        // console.log(ext_id, 'ext_id')
         history.push(`/app/transfers/${ext_id}`)
     }
 
@@ -76,8 +77,8 @@ export default function Tables() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem("Bearer")}`
         }
-        axios.get(search_url,  {headers}).then(response => {
-            console.log(response);
+        axios.get(search_url, {headers}).then(response => {
+            // console.log(response);
             setObjects(response.data.results)
         }).catch(err => {
             console.log(err)
@@ -95,7 +96,6 @@ export default function Tables() {
             }
         }
         axios.post(partner_url, data, {headers}).then(response => {
-            console.log(response);
             setObjects(response.data.results)
         }).catch(err => {
             console.log(err)
@@ -119,20 +119,23 @@ export default function Tables() {
                                 <Input className="mt-3"
                                        type="search"
                                        onChange={(e) => setSearch(e.target.value)}
-                                       placeholder="Ext ID"
+                                       placeholder="Paste Ext ID or RRN"
                                 />
                             </div>
-                            <div className="relative w-full max-w-xl focus-within:text-purple-500">
-                                {/*<Listbox options={options}/>*/}
-                            </div>
-                            <Button onClick={searching}>Search</Button>
+
+                            <Button onClick={searching}>
+                                <div className="mr-2">
+                                    <i><FaSearch/></i>
+                                </div>
+                                Search
+                            </Button>
                         </div>
                     </CardBody>
                 </Card>
                 <TableContainer className="mb-8">
                     <Table>
                         <Header/>
-                        {objects ?
+                        {objects.length ?
                             <TableBody>
                                 {objects.map((item) => (
                                     <TableRow key={item.ext_id}>
@@ -180,17 +183,13 @@ export default function Tables() {
                                 ))}
                             </TableBody>
                             :
-                            <TableBody>
-                                <TableRow>
-                                    <div>
-                                        <h1 className="text-center">Not found</h1>
-                                    </div>
-                                </TableRow>
-                            </TableBody>
+                            <div className="flex justify-center">
+                                <h1 className="p-5 text-center">Not found</h1>
+                            </div>
                         }
-                    </Table>
 
-                    <TableFooter>
+                    </Table>
+                    <TableFooter hidden={!!search}>
                         <Pagination
                             totalResults={totalRecords}
                             resultsPerPage={resultsPerPage}
@@ -198,6 +197,8 @@ export default function Tables() {
                             label="Table navigation"
                         />
                     </TableFooter>
+
+
                 </TableContainer>
             </div>
         </>

@@ -1,8 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import InfoCard from "../components/Cards/InfoCard";
 import PageTitle from "../components/Typography/PageTitle";
-import RoundIcon from "../components/RoundIcon";
-import {CartIcon, ChatIcon, MoneyIcon, PeopleIcon} from "../icons";
 import {
     Badge,
     Button,
@@ -17,11 +14,8 @@ import {
 } from "@windmill/react-ui";
 import {useParams} from "react-router-dom";
 import axios from "axios";
-import {Rings} from 'react-loader-spinner'
-import {BarLoader, CircleLoader, PuffLoader, SyncLoader} from 'react-spinners';
-import SectionTitle from "../components/Typography/SectionTitle";
-import {ExportToExcel} from '../components/ExportToExcel'
 import {FaDownload} from "react-icons/all";
+import swal from 'sweetalert';
 
 export default function TableDetails() {
     const {id} = useParams();
@@ -40,7 +34,7 @@ export default function TableDetails() {
     const [cardNumber, setCardNumber] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const fileName = "myFile";
+
 
     const getDetails = () => {
         const url = 'http://192.168.202.41:8081/api/v1/main/';
@@ -66,12 +60,12 @@ export default function TableDetails() {
                 // setSenderProvider(res.data.sender.provider)
                 setReceiverCard(res.data.result.receiver.number)
                 setDebit(res.data.result.transfer.debit)
-                setCredit(res.data.result.transfer.credit)
+                setCredit(res?.data?.result?.transfer?.credit)
                 setAmount(res.data.result.transfer.credit.amount)
                 setRub(res.data.result.transfer.debit.currency)
                 setRate(res.data.result.currency.rate)
                 setCommission(res.data.result.transfer.debit.commission)
-                console.log(res);
+                // console.log(res);
 
 
             }).catch((err) => console.error(err));
@@ -90,7 +84,7 @@ export default function TableDetails() {
             "method": "transfer.recredit",
             "params": {
                 "ext_id": extId,
-                "number": cardNumber
+                "number": cardNumber ? cardNumber : null
             }
         }
         const headers = {
@@ -99,8 +93,21 @@ export default function TableDetails() {
         }
         axios.post(url, data, {headers})
             .then((res) => {
-                // setExtId(res.data.result.transfer.ext_id)
                 console.log(res);
+                let description = res?.data?.result?.description;
+                if (res?.data?.result?.state === 4) {
+                    swal({
+                        title: `${description}`,
+                        text: "Successfully transaction",
+                        icon: "success",
+                    });
+                } else {
+                    swal({
+                        title: `${res.data.error.message.uz}`,
+                        text: "Error!",
+                        icon: "error",
+                    });
+                }
             })
     }
 
@@ -119,12 +126,12 @@ export default function TableDetails() {
                                     <TableCell>{extId}</TableCell>
                                     <TableCell></TableCell>
                                     <TableCell>
-                                        <Button>
-                                            Export Data
-                                            <div className="ml-2">
-                                                <i><FaDownload/></i>
-                                            </div>
-                                        </Button>
+                                        {/*<Button>*/}
+                                        {/*    Export Data*/}
+                                        {/*    <div className="ml-2">*/}
+                                        {/*        <i><FaDownload/></i>*/}
+                                        {/*    </div>*/}
+                                        {/*</Button>*/}
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
@@ -167,43 +174,63 @@ export default function TableDetails() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="font-semibold">Credit Description :</TableCell>
-                                    <TableCell>{credit?.description}</TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            className="text-white"
+                                            style={
+                                                credit?.description === "transaction error" ? {backgroundColor: '#f39c12'}
+                                                    : credit?.description === "cancelled" ? {backgroundColor: '#fc0000'}
+                                                        : credit?.description === "Cheque Created!" ? {backgroundColor: '#4a7ede'}
+                                                            : credit?.description === "created" ? {backgroundColor: '#4a7ede'}
+                                                                : credit?.description === "Successful transaction" ? {backgroundColor: '#4ade80'}
+                                                                    : credit?.description === "Success" ? {backgroundColor: '#4ade80'}
+                                                                        : {backgroundColor: '#4ade80'}
+                                            }>
+                                            {credit?.description}
+                                        </Badge>
+                                    </TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
                     </TableContainer>
 
-                    <div className="grid gap-6 mb-8 md:grid-cols-2">
-                        <Card>
-                            <CardBody>
-                                <p className="mb-4 font-semibold">Reset Debit</p>
-                                <Label className="mt-4">
-                                    <div className="relative text-gray-500 focus-within:text-purple-600">
-                                        <div className="space-y-5">
-                                            <input
-                                                onChange={(e) => setExtId(e.target.value)}
-                                                // value={(e) => setCardNumber(e.target.value)}
-                                                className="block w-full pr-20 mt-1 text-sm text-black dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
-                                                placeholder="Ext Id"
-                                            />
-                                            <input
-                                                onChange={(e) => setCardNumber(e.target.value)}
-                                                // value={(e) => setCardNumber(e.target.value)}
-                                                className="block w-full pr-20 mt-1 text-sm text-black dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
-                                                placeholder="8600 99** **** **99"
-                                            />
+                    {credit?.state === 4
+                        ?
+                        <div></div>
+                        :
+                        <div className="grid gap-6 mb-8 md:grid-cols-2">
+                            <Card>
+                                <CardBody>
+                                    <p className="mb-4 font-semibold dark:text-gray-500">Reset Debit</p>
+                                    <Label className="mt-4">
+                                        <div className="relative text-gray-500 focus-within:text-purple-600">
+                                            <div className="space-y-5">
+                                                <input
+                                                    onChange={(e) => setExtId(e.target.value)}
+                                                    className="block w-full pr-20 mt-1 text-sm text-black dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
+                                                    placeholder="Ext Id"
+                                                />
+                                                <input
+                                                    onChange={(e) => setCardNumber(e.target.value)}
+                                                    className="block w-full pr-20 mt-1 text-sm text-black dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
+                                                    placeholder="8600 99** **** **99"
+                                                />
+                                            </div>
+                                            <button
+                                                onClick={() => reCredit()}
+                                                className="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+                                                Reset
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => reCredit()}
-                                            className="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
-                                            Reset
-                                        </button>
-                                    </div>
-                                </Label>
-                            </CardBody>
-                        </Card>
-                    </div>
+                                    </Label>
+                                </CardBody>
+                            </Card>
+                        </div>
+                    }
+
                 </div>
+
+
             </div>
         </>
     );
