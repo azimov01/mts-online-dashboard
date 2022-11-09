@@ -7,7 +7,8 @@ const Header = () => {
             <tr className="text-center">
                 <TableCell>Partner</TableCell>
                 <TableCell>Ext ID</TableCell>
-                <TableCell>Trans ID</TableCell>
+                {/*<TableCell>Trans ID</TableCell>*/}
+                <TableCell>Debit | Credit</TableCell>
                 <TableCell>Result</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Action</TableCell>

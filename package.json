@@ -44,7 +44,7 @@
     "react-scripts": "3.4.1",
     "react-select": "^5.4.0",
     "react-spinners": "^0.13.4",
-    "react-toastify": "^9.0.8",
+    "react-toastify": "^8.0.0",
     "react-transition-group": "4.4.1",
     "rooks": "^7.4.0",
     "sweetalert": "^2.1.2",

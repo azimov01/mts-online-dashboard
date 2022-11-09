@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useEffect, useMemo, useState} from "react"
 import InfoCard from "./Cards/InfoCard";
 import RoundIcon from "./RoundIcon";
 import {DateIcon} from "../icons";
@@ -13,11 +13,14 @@ import {
     TableCell,
     TableContainer,
     TableHeader,
-    TableRow
+    TableRow,
+    TableFooter
 } from "@windmill/react-ui";
 import {FaSearch} from "react-icons/fa";
 import {FaDownload} from "react-icons/all";
 import axios from "axios";
+import {PuffLoader} from "react-spinners";
+import ThemedSuspense from "./ThemedSuspense";
 
 function FilterComponent() {
 
@@ -30,6 +33,10 @@ function FilterComponent() {
     const [byDays, setByDays] = useState(false);
     const [byMonths, setByMonths] = useState(false);
     const [byRates, setByRates] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const [sum_uzs, setSum_uzs] = useState();
+    const [sum_rub, setSum_rub] = useState();
 
 
     const start_date = startDate.toLocaleDateString('ru-RU') + ' ' + startDate.toLocaleTimeString();
@@ -60,8 +67,20 @@ function FilterComponent() {
         }
     };
 
+    // const numbers = item.map((obj)=>{
+    //     setSum_uzs(obj.data.result.sum_uzs)
+    //     setSum_rub(obj.data.result.sum_rub)
+    // })
+    //
+    // document.getElementById("sum_uzs").innerHTML = numbers.reduce(getSum, 0);
+    //
+    // function getSum(total, num) {
+    //     return total + Math.round(num);
+    // }
+
 
     const getAnalytics = () => {
+        setLoading(true)
         const url = 'https://fusion.unired.uz/api/v1/main/'
         const data = {
             "jsonrpc": "2.0",
@@ -78,18 +97,23 @@ function FilterComponent() {
         }
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ef6d056e-e70f-4910-9b78-c6fff87f1039'
+            'Authorization': `Bearer ${localStorage.getItem("Bearer")}`
         }
-        axios.post(url, data, {headers}).then(response => {
-            setItem(response.data.result)
-        })
+        axios.post(url, data, {headers})
+            .then(response => {
+                // console.log(response);
+                setItem(response.data.result)
+                setLoading(false);
+            })
+
     }
 
-    function isDisabled() {
-        if (byPartners === true && byMonths === false && byDays === false && byRates === false) {
+    const summator = (arr, fieldName) => (arr.reduce((a, b) => a + b[fieldName], 0));
+    const totalSumUzs = useMemo(() => summator(item, 'sum_uzs'), [item]);
+    const totalSumRub = useMemo(() => summator(item, 'sum_rub'), [item]);
+    const totalCounts = useMemo(() => summator(item, 'counts'), [item]);
+    // console.log(totalSumUzs);
 
-        }
-    }
 
     return (
         <div>
@@ -138,16 +162,16 @@ function FilterComponent() {
                             <span className="ml-2">Search</span>
                         </Button>
                     </div>
-                    {byPartners || byMonths || byDays || byRates
-                        ?
-                        <div>
-                            <Button size="larger" onClick={getAnalytics}>
-                                <FaDownload/>
-                                <span className="ml-2">Export Data</span>
-                            </Button>
-                        </div>
-                        : null
-                    }
+                    {/*{byPartners || byMonths || byDays || byRates*/}
+                    {/*    ?*/}
+                    {/*    <div>*/}
+                    {/*        <Button size="larger" onClick={getAnalytics}>*/}
+                    {/*            <FaDownload/>*/}
+                    {/*            <span className="ml-2">Export Data</span>*/}
+                    {/*        </Button>*/}
+                    {/*    </div>*/}
+                    {/*    : null*/}
+                    {/*}*/}
                 </div>
 
 
@@ -199,44 +223,52 @@ function FilterComponent() {
 
             {byPartners ?
                 <div className="mt-10">
-                    <div className="grid gap-6 mb-8 md:grid-cols-2">
-                        {item.map((data) => (
-                            <Card colored className="text-white bg-purple-600">
-                                <CardBody>
-                                    <p className="mb-4 font-black">
-                                        {data.partner === 1 ? "Tezpay"
-                                            : data.partner === 3 ? "Milliy Pay"
-                                                : data.partner === 4 ? "GLOBIZ"
-                                                    : data.partner === 7 ? "Unired Mobile"
-                                                        : ""
-                                        }</p>
-                                    <div className="space-y-10">
-                                        {/*<p>*/}
-                                        {/*    Summa RUB : {(data.sum_rub / 100).toLocaleString("ru")}*/}
-                                        {/*</p>*/}
-                                        <p>
-                                            Summa RUB : <b>{(new Intl.NumberFormat('ru-RU', {
-                                            style: 'currency',
-                                            currency: 'RUB'
-                                        }).format(data.sum_rub))}</b>
-                                        </p>
-                                        {/*<p>*/}
-                                        {/*    Summa UZS : {(data.sum_uzs / 100).toLocaleString("ru")}*/}
-                                        {/*</p>*/}
-                                        <p>
-                                            Summa UZS : <b>{(new Intl.NumberFormat('uz-uz', {
-                                            style: 'currency',
-                                            currency: 'Uzs'
-                                        }).format(data.sum_uzs))}</b>
-                                        </p>
-                                        <p>
-                                            Transactions : <b>{data.counts}</b>
-                                        </p>
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        ))}
-                    </div>
+                    {loading === true ?
+                        <div
+                            className="w-full h-screen p-6 text-lg font-medium text-gray-600 dark:text-gray-400 dark:bg-gray-900">
+                            <PuffLoader size="300" color="#7e3af2" className="my-56 mx-auto"/>
+                        </div>
+                        :
+                        <div className="grid gap-6 mb-8 md:grid-cols-2">
+                            {item.map((data) => (
+                                <Card colored className="text-white bg-purple-600">
+                                    <CardBody>
+                                        <p className="mb-4 font-black">
+                                            {data.partner === 1 ? "Tezpay"
+                                                : data.partner === 3 ? "Milliy Pay"
+                                                    : data.partner === 4 ? "GLOBIZ"
+                                                        : data.partner === 7 ? "Unired Mobile"
+                                                            : ""
+                                            }</p>
+                                        <div className="space-y-10">
+                                            {/*<p>*/}
+                                            {/*    Summa RUB : {(data.sum_rub / 100).toLocaleString("ru")}*/}
+                                            {/*</p>*/}
+                                            <p>
+                                                Summa RUB : <b>{(new Intl.NumberFormat('ru-RU', {
+                                                style: 'currency',
+                                                currency: 'RUB'
+                                            }).format(data.sum_rub / 100))}</b>
+                                            </p>
+                                            {/*<p>*/}
+                                            {/*    Summa UZS : {(data.sum_uzs / 100).toLocaleString("ru")}*/}
+                                            {/*</p>*/}
+                                            <p>
+                                                Summa UZS : <b>{(new Intl.NumberFormat('uz-uz', {
+                                                style: 'currency',
+                                                currency: 'Uzs'
+                                            }).format(data.sum_uzs / 100))}</b>
+                                            </p>
+                                            <p>
+                                                Transactions : <b>{data.counts}</b>
+                                            </p>
+                                        </div>
+                                    </CardBody>
+                                </Card>
+                            ))}
+                        </div>
+                    }
+
                 </div>
                 : byRates ?
                     <div className="mb-10">
@@ -264,62 +296,112 @@ function FilterComponent() {
                                                     className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', {
                                                     style: 'currency',
                                                     currency: 'RUB'
-                                                }).format(items.sum_rub))}</span>
+                                                }).format(items.sum_rub / 100))}</span>
                                             </TableCell>
                                             <TableCell>
                                                 <span
                                                     className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', {
                                                     style: 'currency',
                                                     currency: 'Uzs'
-                                                }).format(items.sum_uzs))}</span>
+                                                }).format(items.sum_uzs / 100))}</span>
                                             </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
+                                <TableFooter>
+                                    <div>
+                                            <span
+                                                className="text-sm font-semibold">Summary: {(new Intl.NumberFormat('uz-uz', {
+                                                style: 'currency',
+                                                currency: 'Uzs'
+                                            }).format(totalSumUzs / 100))}
+                                            </span>
+                                    </div>
+                                    <div>
+                                            <span
+                                                className="text-sm font-semibold">Summary: {(new Intl.NumberFormat('ru-RU', {
+                                                style: 'currency',
+                                                currency: 'RUB'
+                                            }).format(totalSumRub / 100))}</span>
+                                    </div>
+                                    <div>
+                                                <span
+                                                    className="text-sm font-semibold">Total counts: {totalCounts}</span>
+                                    </div>
+                                </TableFooter>
                             </Table>
                         </TableContainer>
                     </div>
                     : byDays ?
                         <div className="mb-10">
-                            <TableContainer>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableCell>Counts</TableCell>
-                                            <TableCell>Created at</TableCell>
-                                            <TableCell>Summa RUB</TableCell>
-                                            <TableCell>Summa UZS</TableCell>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {item.map((items) => (
+                            {loading === true ?
+                                <div
+                                    className="w-full h-screen p-6 text-lg font-medium text-gray-600 dark:text-gray-400 dark:bg-gray-900">
+                                    <PuffLoader size="300" color="#7e3af2" className="my-56 mx-auto"/>
+                                </div>
+                                :
+                                <TableContainer>
+                                    <Table>
+                                        <TableHeader>
                                             <TableRow>
-                                                <TableCell>
-                                                    <span className="text-sm font-semibold">{items.counts}</span>
-                                                </TableCell>
-                                                <TableCell>
+                                                <TableCell>Counts</TableCell>
+                                                <TableCell>Created at</TableCell>
+                                                <TableCell>Summa RUB</TableCell>
+                                                <TableCell>Summa UZS</TableCell>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {item.map((items) => (
+                                                <TableRow>
+                                                    <TableCell>
+                                                                <span
+                                                                    className="text-sm font-semibold">{items.counts}</span>
+                                                    </TableCell>
+                                                    <TableCell>
                                                     <span
                                                         className="text-sm font-semibold">{items.created_at__date}</span>
-                                                </TableCell>
-                                                <TableCell>
+                                                    </TableCell>
+                                                    <TableCell>
                                                     <span
                                                         className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', {
                                                         style: 'currency',
                                                         currency: 'RUB'
-                                                    }).format(items.sum_rub))}</span>
-                                                </TableCell>
-                                                <TableCell>
+                                                    }).format(items.sum_rub / 100))}</span>
+                                                    </TableCell>
+                                                    <TableCell>
                                                     <span
                                                         className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', {
                                                         style: 'currency',
                                                         currency: 'Uzs'
-                                                    }).format(items.sum_uzs))}</span>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                                                    }).format(items.sum_uzs / 100))}</span>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                        <TableFooter>
+                                            <div>
+                                            <span
+                                                className="text-sm font-semibold">Summary: {(new Intl.NumberFormat('uz-uz', {
+                                                style: 'currency',
+                                                currency: 'Uzs'
+                                            }).format(totalSumUzs / 100))}
+                                            </span>
+                                            </div>
+                                            <div>
+                                            <span
+                                                className="text-sm font-semibold">Summary: {(new Intl.NumberFormat('ru-RU', {
+                                                style: 'currency',
+                                                currency: 'RUB'
+                                            }).format(totalSumRub / 100))}</span>
+                                            </div>
+                                            <div>
+                                                <span
+                                                    className="text-sm font-semibold">Total counts: {totalCounts}</span>
+                                            </div>
+                                        </TableFooter>
+                                    </Table>
+                                </TableContainer>
+                            }
                         </div>
                         : byMonths ?
                             <div className="mb-10">
@@ -337,7 +419,8 @@ function FilterComponent() {
                                             {item.map((items) => (
                                                 <TableRow>
                                                     <TableCell>
-                                                        <span className="text-sm font-semibold">{items.counts}</span>
+                                                                <span
+                                                                    className="text-sm font-semibold">{items.counts}</span>
                                                     </TableCell>
                                                     <TableCell>
                                                         <span
@@ -348,14 +431,14 @@ function FilterComponent() {
                                                             className="text-sm font-semibold">{(new Intl.NumberFormat('ru-RU', {
                                                             style: 'currency',
                                                             currency: 'RUB'
-                                                        }).format(items.sum_rub))}</span>
+                                                        }).format(items.sum_rub / 100))}</span>
                                                     </TableCell>
                                                     <TableCell>
                                                         <span
                                                             className="text-sm font-semibold">{(new Intl.NumberFormat('uz-uz', {
                                                             style: 'currency',
                                                             currency: 'Uzs'
-                                                        }).format(items.sum_uzs))}</span>
+                                                        }).format(items.sum_uzs / 100))}</span>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -373,6 +456,7 @@ function FilterComponent() {
                             </div>
 
             }
+
         </div>
     )
 }
